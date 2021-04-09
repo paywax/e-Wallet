@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ * Copyright © 2020 Paywax SAS. All rights reserved.
+ * License: OSL 3.0 https://opensource.org/licenses/OSL-3.0
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="PaywaxWalletFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">\Paywax\Wallet\Model\Ui\ConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Paywax\Wallet\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">PaywaxWalletValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">PaywaxWalletCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="PaywaxWalletConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">\Paywax\Wallet\Model\Ui\ConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="PaywaxWalletLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">PaywaxWalletConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Paywax\Wallet\Gateway\Http\Client\PaywaxWalletClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">PaywaxWalletLogger</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="PaywaxWalletCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">PaywaxWalletAuthorizeCommand</item>
+                <item name="refund" xsi:type="string">PaywaxWalletRefundCommand</item>
+                <item name="capture" xsi:type="string">PaywaxWalletCaptureCommand</item>
+                <item name="void" xsi:type="string">PaywaxWalletVoidCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="PaywaxWalletRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">PaywaxWalletRefundRequest</argument>
+            <argument name="handler" xsi:type="object">PaywaxWalletResponseHandlerComposite</argument>
+            <argument name="transferFactory" xsi:type="object">Paywax\Wallet\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Paywax\Wallet\Gateway\Http\Client\PaywaxWalletClient</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="PaywaxWalletRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="refund" xsi:type="string">Paywax\Wallet\Gateway\Request\RefundRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Paywax\Wallet\Gateway\Request\RefundRequest">
+        <arguments>
+            <argument name="config" xsi:type="object">PaywaxWalletConfig</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="PaywaxWalletAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">PaywaxWalletAuthorizationRequest</argument>
+            <argument name="handler" xsi:type="object">PaywaxWalletResponseHandlerComposite</argument>
+            <argument name="transferFactory" xsi:type="object">Paywax\Wallet\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Paywax\Wallet\Gateway\Http\Client\PaywaxWalletClient</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="PaywaxWalletAuthorizationRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">Paywax\Wallet\Gateway\Request\AuthorizationRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Paywax\Wallet\Gateway\Request\AuthorizationRequest">
+        <arguments>
+            <argument name="config" xsi:type="object">PaywaxWalletConfig</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="PaywaxWalletCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Paywax\Wallet\Gateway\Request\CaptureRequest</argument>
+            <argument name="handler" xsi:type="object">Paywax\Wallet\Gateway\Response\TxnIdHandler</argument>
+            <argument name="transferFactory" xsi:type="object">Paywax\Wallet\Gateway\Http\TransferFactory</argument>
+            <argument name="validator" xsi:type="object">Paywax\Wallet\Gateway\Validator\ResponseCodeValidator</argument>
+            <argument name="client" xsi:type="object">Paywax\Wallet\Gateway\Http\Client\PaywaxWalletClient</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Paywax\Wallet\Gateway\Request\CaptureRequest">
+        <arguments>
+            <argument name="config" xsi:type="object">PaywaxWalletConfig</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="PaywaxWalletVoidCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Paywax\Wallet\Gateway\Request\VoidRequest</argument>
+            <argument name="handler" xsi:type="object">Paywax\Wallet\Gateway\Response\TxnIdHandler</argument>
+            <argument name="transferFactory" xsi:type="object">Paywax\Wallet\Gateway\Http\TransferFactory</argument>
+            <argument name="validator" xsi:type="object">Paywax\Wallet\Gateway\Validator\ResponseCodeValidator</argument>
+            <argument name="client" xsi:type="object">Paywax\Wallet\Gateway\Http\Client\PaywaxWalletClient</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Paywax\Wallet\Gateway\Request\VoidRequest">
+        <arguments>
+            <argument name="config" xsi:type="object">PaywaxWalletConfig</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="PaywaxWalletResponseHandlerComposite" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="txnid" xsi:type="string">Paywax\Wallet\Gateway\Response\TxnIdHandler</item>
+                <item name="fraud" xsi:type="string">Paywax\Wallet\Gateway\Response\FraudHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="PaywaxWalletValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">PaywaxWalletConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="PaywaxWalletConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">PaywaxWalletConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Paywax\Wallet\Block\Info">
+        <arguments>
+            <argument name="config" xsi:type="object">PaywaxWalletConfig</argument>
+        </arguments>
+    </type>
+
+    <preference for="Paywax\Wallet\Api\ServiceInterface" type="Paywax\Wallet\Api\Service"/>
+</config>
