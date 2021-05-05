@@ -99,7 +99,7 @@ class Service implements ServiceInterface
         }
     }
 
-    public function setQuoteAddresses($shippingAddress, $email, $quote)
+    public function setQuoteAddresses($shippingAddress, $email, $quote, $customer)
     {
         $name = $shippingAddress['name'];
         $phoneNumber = $shippingAddress['phoneNumber'];
@@ -124,6 +124,7 @@ class Service implements ServiceInterface
         $names = $this->getNames($name);
         $shippingAddress->setFirstname($names[0]);
         $shippingAddress->setLastname($names[1]);
+        $shippingAddress->setPrefix($customer->getPrefix());
         $shippingAddress->setTelephone($phoneNumber);
         $shippingAddress->setCity($locality);
         $shippingAddress->setRegionCode($administrativeArea);
@@ -153,10 +154,11 @@ class Service implements ServiceInterface
      * @param string $shallCreate
      * @param string $sid
      * @param string $quoteId
+     * @param string $prefix
      *
      * @return string
      */
-    public function orderPostMethod($shippingAddress,$paymentIntentId,$shippingOptionId, $paymentMethod, $email, $shallCreate, $sid, $quoteId)
+    public function orderPostMethod($shippingAddress,$paymentIntentId,$shippingOptionId, $paymentMethod, $email, $shallCreate, $sid, $quoteId, $prefix)
     {
         $redirectUrl = $this->urlBuilder->getUrl('checkout/onepage/failure', ['_secure' => true]);
         try{
@@ -185,6 +187,7 @@ class Service implements ServiceInterface
                                 ->setPassword($this->rand_string(12))
                                 ->setFirstname($names[0])
                                 ->setLastname($names[1])
+                                ->setPrefix($prefix)
                                 ->save();
                         $this->customerSession->setCustomerAsLoggedIn($customer);
                         $customerId = true;
@@ -221,7 +224,7 @@ class Service implements ServiceInterface
             }
 
             $quote->reserveOrderId()->save();
-            $this->setQuoteAddresses($shippingAddress, $email, $quote);
+            $this->setQuoteAddresses($shippingAddress, $email, $quote, $customer);
             $quote->getShippingAddress()->setShippingMethod($shippingOptionId);
             $this->shippingRate
                 ->setCode($shippingOptionId)

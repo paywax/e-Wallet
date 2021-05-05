@@ -17,9 +17,10 @@ interface ServiceInterface
      * @param  string $shallCreate
      * @param  string $sid
      * @param  string $maskedQuoteId
+     * @param  string $prefix
      * @return mixed  Json Object
      */
-    public function orderPostMethod($shippingAddress,$paymentIntentId,$shippingOptionId, $paymentMethod, $email, $shallCreate, $sid ,$quoteId);
+    public function orderPostMethod($shippingAddress,$paymentIntentId,$shippingOptionId, $paymentMethod, $email, $shallCreate, $sid ,$quoteId, $prefix);
 
     /**
      * POST for Paywax Wallet api
