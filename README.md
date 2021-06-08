@@ -8,6 +8,8 @@ There is NO configuration to be done in the Magento interface, please contact us
 
 ## Changelog
 
+### v1.0.2106081455
+Fix for logged in users
 ### v1.0.2105041539
 Added prefix to account creation
 
