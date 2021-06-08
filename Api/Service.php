@@ -196,6 +196,7 @@ class Service implements ServiceInterface
                     }
                 }
             } else {
+                $customer = $this->customerSession->getCustomer();
                 $exist = true;
                 $customerId = true;
             }
@@ -323,6 +324,9 @@ class Service implements ServiceInterface
             ];
 
         }catch(\Exception $e) {
+            if($shouldUnlog) {
+                $this->customerSession->setCustomerId(null);
+            }
             $this->logger->debug($e->getMessage());
             $response=[
                 'error' => $e->getMessage(),
