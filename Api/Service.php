@@ -161,10 +161,10 @@ class Service implements ServiceInterface
     public function orderPostMethod($shippingAddress,$paymentIntentId,$shippingOptionId, $paymentMethod, $email, $shallCreate, $sid, $quoteId, $prefix)
     {
         $redirectUrl = $this->urlBuilder->getUrl('checkout/onepage/failure', ['_secure' => true]);
+        $shouldUnlog = false;
         try{
             $exist = false;
             $customerId = false;
-            $shouldUnlog = false;
             $isLoggedIn = $this->customerSession->isLoggedIn();
             $isGuest = false;
             if (!$isLoggedIn) {
@@ -266,6 +266,9 @@ class Service implements ServiceInterface
             $json = json_decode($response->getBody(), true);
             $status = $json['status'];
             if($status != 'ok') {
+                if($shouldUnlog) {
+                    $this->customerSession->setCustomerId(null);
+                }    
                 return json_encode(array(
                     'url' => $redirectUrl,
                     'reason' => "paymentrefused",
@@ -313,10 +316,6 @@ class Service implements ServiceInterface
                 );
             }
 
-            if($shouldUnlog) {
-                $this->customerSession->setCustomerId(null);
-            }
-
             $response = [
                 'url' => $this->urlBuilder->getUrl('checkout/onepage/success', ['_secure' => true]),
                 'quote' => $quote->getId(),
@@ -324,14 +323,14 @@ class Service implements ServiceInterface
             ];
 
         }catch(\Exception $e) {
-            if($shouldUnlog) {
-                $this->customerSession->setCustomerId(null);
-            }
             $this->logger->debug($e->getMessage());
             $response=[
                 'error' => $e->getMessage(),
                 'url' => $redirectUrl
             ];
+        }
+        if($shouldUnlog) {
+            $this->customerSession->setCustomerId(null);
         }
 
         return json_encode($response);
