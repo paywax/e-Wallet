@@ -236,6 +236,7 @@ class Service implements ServiceInterface
             $quote->setPaymentMethod('paywax_wallet');
             $quote->getPayment()->setTransactionId($paymentIntentId);
             $quote->collectTotals();
+            $quote->reserveOrderId();
             $quote->save();
             $quoteTotal = $quote->getGrandTotal();
             $quoteCurrency = $quote->getQuoteCurrencyCode();
@@ -243,7 +244,7 @@ class Service implements ServiceInterface
                 'intent_id' => $paymentIntentId,
                 'amount' => $quoteTotal * 100,
                 'currency' => $quoteCurrency,
-                'cart_id' => $quote->getId(),
+                'cart_id' => $quote->getReservedOrderId(),
                 'paymentMethod' => $paymentMethod,
                 'sid' => $sid
             );
