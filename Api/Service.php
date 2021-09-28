@@ -220,7 +220,11 @@ class Service implements ServiceInterface
                     ->setCustomerGroupId(\Magento\Customer\Api\Data\GroupInterface::NOT_LOGGED_IN_ID);
                 }else{
                     $datacustomer= $this->customerRepository->getById($customer->getEntityId());
+                    $quote
+                    ->setCheckoutMethod(\Magento\Checkout\Model\Type\Onepage::METHOD_CUSTOMER);
+    
                     $quote->assignCustomer($datacustomer);
+                    $quote->setCustomerIsGuest(0); // 
                 }
             }
 
