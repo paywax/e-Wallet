@@ -229,13 +229,17 @@ class Service implements ServiceInterface
             }
 
             $quote->reserveOrderId()->save();
-            $this->setQuoteAddresses($shippingAddress, $email, $quote, $customer);
-            $quote->getShippingAddress()->setShippingMethod($shippingOptionId);
-            $this->shippingRate
-                ->setCode($shippingOptionId)
-                ->getPrice();
-            $quote->getShippingAddress()->addShippingRate($this->shippingRate);
-            $quote->getShippingAddress()->setCollectShippingRates(true);
+            if($email) {
+              $this->setQuoteAddresses($shippingAddress, $email, $quote, $customer);
+            }
+            if($shippingOptionId) {
+              $quote->getShippingAddress()->setShippingMethod($shippingOptionId);
+              $this->shippingRate
+                  ->setCode($shippingOptionId)
+                  ->getPrice();
+              $quote->getShippingAddress()->addShippingRate($this->shippingRate);
+              $quote->getShippingAddress()->setCollectShippingRates(true);
+            }
             $quote->getPayment()->importData(['method' => 'paywax_wallet']);
             $quote->setPaymentMethod('paywax_wallet');
             $quote->getPayment()->setTransactionId($paymentIntentId);
