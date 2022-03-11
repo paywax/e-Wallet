@@ -8,11 +8,15 @@ There is NO configuration to be done in the Magento interface, please contact us
 
 ## Changelog
 
+### v1.0.2203111743
+Added ability to validate order without address nor shipping option
+
 ### v1.0.2107121056
 Added ability to load via GTM instead
 
 ### v1.0.2106081455
 Fix for logged in users
+
 ### v1.0.2105041539
 Added prefix to account creation
 
