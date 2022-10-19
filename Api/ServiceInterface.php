@@ -16,7 +16,7 @@ interface ServiceInterface
      * @param  string $email
      * @param  string $shallCreate
      * @param  string $sid
-     * @param  string $maskedQuoteId
+     * @param  string $quoteId
      * @param  string $prefix
      * @return mixed  Json Object
      */
